@@ -9,7 +9,7 @@ from std_srvs.srv import Empty
 #from copy import deepcopy
  
 # Imports the code to control the hand using smart actions
-#from reflex import reflex_smarts
+from reflex import reflex_smarts
 from reflex_msgs.msg import Hand, RadianServoPositions
 
 # grasp_success 0 = false, 1 = true
