@@ -15,6 +15,9 @@ from reflex_msgs.msg import Hand, RadianServoPositions
 # grasp_success 0 = false, 1 = true
 grasp_success = 0;
 
+# check pressure sensors on just two fingers?
+checkTwoFingers = True;
+
 #open configuration for finger
 
 
@@ -44,6 +47,7 @@ grasp_success = 0;
 
 def check_grasp(reflex_hand):
 	
+	global checkTwoFingers
 	global grasp_success
 	threshold = 3
 	minContactPoints = 1;
@@ -68,11 +72,18 @@ def check_grasp(reflex_hand):
 
 
  			# checking if minimum contact points acheived
+ 			# if checkTwoFingers flag is true, checks for only two opposite fingers.
  			# can try to close more if not, and then retract
- 			if(contacts_finger0>=minContactPoints and contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints):
- 				grasp_success = 1
- 				rospy.loginfo("Successful Grasp")
- 				return
+ 			if(checkTwoFingers == True):
+ 				if((contacts_finger0>=minContactPoints and contacts_finger2>=minContactPoints) or (contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints)):
+ 					grasp_success = 1
+ 					rospy.loginfo("Successful Grasp")
+ 					return
+ 			else:
+ 				if(contacts_finger0>=minContactPoints and contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints):
+ 					grasp_success = 1
+ 					rospy.loginfo("Successful Grasp")
+ 					return
 
 
  		rospy.loginfo("Unsuccessful Grasp because not enought contact points")
