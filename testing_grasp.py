@@ -15,42 +15,17 @@ from reflex_msgs.msg import Hand, RadianServoPositions
 # grasp_success 0 = false, 1 = true
 grasp_success = 0;
 
-# check pressure sensors on just two fingers?
-checkTwoFingers = True;
-
-#open configuration for finger
-
-
-#spool_length = [0, 0, 0]
-
-# def check_grasp(Hand_msg):
-
-# 	global grasp_success
-
-# 	#threshold for deciding successful or unsuccessful grasp
-# 	threshold = 3.3 
-# 	spool_value = [0, 0, 0]
-# 	hand = deepcopy(Hand_msg)
-# 	for i in range(3):
-# 		rospy.loginfo("Spool of hand %s is %s",i,hand.finger[i].spool)
-# 		spool_value[i] = hand.finger[i].spool
-
-# 	if spool_value[0]>threshold or spool_value[1]>threshold or spool_value[2]>threshold:
-# 		rospy.loginfo("Unsuccessful Grasp")
-# 		grasp_success = 0
-# 		return
-# 	else:
-# 		rospy.loginfo("Successful Grasp")
-# 		grasp_success = 1
-# 		return
-
-
-def check_grasp(reflex_hand):
+# function check_grasp: used to determine the quality of grasp of an object using data from the hands sensors.
+# Inputs:
+# 1) reflex_hand: reflex hand object
+# 2) float threshold: threshold of spool lenght to decide if a finger is closed
+# 3) bool checkContact: if true, checks contact, else only decides grasp quality based on threshold
+# 4) bool checkTwoFingers: if checkContact is true, and checkTwoFingers is true, it is enough to have contact on just two opposite fingers, else contact is require on all three fingers
+# 5) int minContactPoints: minimum number of contact points to be checked on each fingers to decide if a grasp quality is good.
+def check_grasp(reflex_hand, threshold=3.0, checkContact=False, checkTwoFingers=True, minContactPoints=1):
 	
-	global checkTwoFingers
+
 	global grasp_success
-	threshold = 3
-	minContactPoints = 1;
 	contacts_finger0 = 0;
 	contacts_finger1 = 0;
 	contacts_finger2 = 0;
@@ -62,33 +37,38 @@ def check_grasp(reflex_hand):
  		return
  	else:
 
- 		for i in range(9):
- 			if(reflex_hand.hand.finger[0].contact[i]==True):
- 				contacts_finger0 = contacts_finger0 + 1;
- 			if(reflex_hand.hand.finger[1].contact[i]==True):
- 				contacts_finger1 = contacts_finger1 + 1;
- 			if(reflex_hand.hand.finger[2].contact[i]==True):
- 				contacts_finger2 = contacts_finger2 + 1;
+ 		if(checkContact == True):
+	 		for i in range(9):
+	 			if(reflex_hand.hand.finger[0].contact[i]==True):
+	 				contacts_finger0 = contacts_finger0 + 1;
+	 			if(reflex_hand.hand.finger[1].contact[i]==True):
+	 				contacts_finger1 = contacts_finger1 + 1;
+	 			if(reflex_hand.hand.finger[2].contact[i]==True):
+	 				contacts_finger2 = contacts_finger2 + 1;
 
 
- 			# checking if minimum contact points acheived
- 			# if checkTwoFingers flag is true, checks for only two opposite fingers.
- 			# can try to close more if not, and then retract
- 			if(checkTwoFingers == True):
- 				if((contacts_finger0>=minContactPoints and contacts_finger2>=minContactPoints) or (contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints)):
- 					grasp_success = 1
- 					rospy.loginfo("Successful Grasp")
- 					return
- 			else:
- 				if(contacts_finger0>=minContactPoints and contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints):
- 					grasp_success = 1
- 					rospy.loginfo("Successful Grasp")
- 					return
+	 			# checking if minimum contact points acheived
+	 			# if checkTwoFingers flag is true, checks for only two opposite fingers.
+	 			# can try to close more if not, and then retract
+	 			if(checkTwoFingers == True):
+	 				if((contacts_finger0>=minContactPoints and contacts_finger2>=minContactPoints) or (contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints)):
+	 					grasp_success = 1
+	 					rospy.loginfo("Successful Grasp by checking just two opposite fingers")
+	 					return
+	 			else:
+	 				if(contacts_finger0>=minContactPoints and contacts_finger1>=minContactPoints and contacts_finger2>=minContactPoints):
+	 					grasp_success = 1
+	 					rospy.loginfo("Successful Grasp because minimum contact points achieved on each finger")
+	 					return
 
+ 			rospy.loginfo("Unsuccessful Grasp because not enought contact points")
+			grasp_success = 0
+			return
 
- 		rospy.loginfo("Unsuccessful Grasp because not enought contact points")
- 		grasp_success = 0
- 		return
+ 		else:
+ 			grasp_success = 1
+ 			rospy.loginfo("Successful Grasp because fingers not closed beyond threshold")
+ 			return
 
 
 def start_grasp():
@@ -176,9 +156,6 @@ def close_fingers(reflex_hand):
 
 	rospy.loginfo("Exiting close fingers")
 	return;
-
-
-
 
 
 if __name__ == '__main__':
