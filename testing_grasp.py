@@ -29,6 +29,11 @@ def check_grasp(reflex_hand, threshold=3.0, checkContact=False, checkTwoFingers=
 	contacts_finger0 = 0;
 	contacts_finger1 = 0;
 	contacts_finger2 = 0;
+	rospy.loginfo("Parameters passed to check grasp:")
+	rospy.loginfo("Threshold: %.2f", threshold)
+	rospy.loginfo("checkContact: %s", checkContact)
+	rospy.loginfo("checkTwoFingers: %s", checkTwoFingers)
+	rospy.loginfo("minContactPoints: %d", minContactPoints)
 
 	# check if each finger has closed more than threshold value
 	if reflex_hand.hand.finger[0].spool>threshold or reflex_hand.hand.finger[1].spool>threshold or reflex_hand.hand.finger[2].spool>threshold:
