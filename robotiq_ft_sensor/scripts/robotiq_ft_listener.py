@@ -17,7 +17,7 @@ def checkGrasp(msgBeforeGrasp, msgAfterGrasp, expectedWeight = 0):
         #if rfDiff > threshold too much weight, if < 0, anamoly
         if(rfDiff > threshold):
             rospy.loginfo("Without weight info: Looks like I'm carrying too much weight");
-        elif(rfDiff < 0):
+        elif(rfDiff < 0 - error):
             rospy.loginfo("Without weight info: Anamoly. After weight < Before weight");
         else:
             rospy.loginfo("Without weight info: Grasp looks good");
