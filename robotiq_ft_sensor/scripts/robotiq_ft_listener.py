@@ -4,9 +4,6 @@ from robotiq_force_torque_sensor.msg import ft_sensor
     
 def listener():
 
-    rfBeforeGrasp = 0;
-    rfAfterGrasp = 0;
-    
     # In ROS, nodes are uniquely named. If two nodes with the same
     # node are launched, the previous one is kicked off. The
     # anonymous=True flag means that rospy will choose a unique
@@ -21,20 +18,16 @@ def listener():
     rospy.loginfo("Before grasp");
     rospy.sleep(2);
     msgBeforeGrasp = rospy.wait_for_message("robotiq_force_torque_sensor", ft_sensor);
-    rfBeforeGrasp = msgBeforeGrasp.Rf;
-    rospy.loginfo("Before grasp: %f",msg.Rf);
+    rospy.loginfo("Before grasp: %f",msgBeforeGrasp.Rf);
 
     rospy.loginfo("After grasp");
     graspStatus = 2;
     rospy.sleep(2);
     msgAfterGrasp = rospy.wait_for_message("robotiq_force_torque_sensor", ft_sensor);
-    rfAfterGrasp = msgAfterGrasp.Rf;
-    rospy.loginfo("After grasp: %f",msg.Rf);
+    rospy.loginfo("After grasp: %f",msgAfterGrasp.Rf);
 
     checkGrasp(msgBeforeGrasp, msgAfterGrasp);
     rospy.loginfo("##DONE##");
-
-    # spin() simply keeps python from exiting until this node is stopped
 
 
 if __name__ == '__main__':
@@ -69,4 +62,4 @@ def checkGrasp(msgBeforeGrasp, msgAfterGrasp, expectedWeight = 0):
             rospy.loginfo("Less than expected weight. Haven't picked up object");
         elif(rfDiff >= expectedWeight + error):
             rospy.loginfo("More than expected weight. Picked the wrong object or hit something");
-            
+
