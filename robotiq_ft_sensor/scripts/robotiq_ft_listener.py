@@ -2,19 +2,29 @@
 import rospy
 from robotiq_force_torque_sensor.msg import ft_sensor
     
+#expectedWeight in "GRAMS"    
 def checkGrasp(msgBeforeGrasp, msgAfterGrasp, expectedWeight = 0):
+
 
     #For now will use only Resultant for Rf from received msg, though the msg has all the sensor information
     threshold = 10;
     error = 2;
 
+    #getExpectedWeight from given object
+    #TODO here or from where function is called?
+
     #rfDiff before and after grasp to use for computation
     rfDiff = msgAfterGrasp.Rf - msgBeforeGrasp.Rf;
 
-    #if no weight is sent will use threshold to make decision, else will use value within error.
-    if(expectedWeight == 0):
+    #convert expectedWeight to Newtons
+    rospy.loginfo("Expected weight in grams: %f", expectedWeight);
+    expectedForce = expectedWeight * 0.00980665;
+    rospy.loginfo("Expected force in newtons: %f", expectedForce);
 
-        #if rfDiff > threshold too much weight, if < 0, anamoly
+    #if no object is sent will use threshold to make decision, else will use converted force within errors in measurement.
+    if(expectedForce == 0):
+
+        #if rfDiff > threshold too much force, if < 0, anamoly
         if(rfDiff > threshold):
             rospy.loginfo("Without weight info: Looks like I'm carrying too much weight");
         elif(rfDiff < 0 - error):
@@ -23,13 +33,13 @@ def checkGrasp(msgBeforeGrasp, msgAfterGrasp, expectedWeight = 0):
             rospy.loginfo("Without weight info: Grasp looks good");
 
     else:
-        #if rfDiff within error of weight, good, > weight, too heavy, < weight, too light
+        #if rfDiff within error of computed force, good; > weight, too heavy; < weight, too light
 
-        if((rfDiff > expectedWeight - error) and (rfDiff < expectedWeight + error)):
+        if((rfDiff > expectedForce - error) and (rfDiff < expectedForce + error)):
             rospy.loginfo("With weight info: Grasp looks good");
-        elif(rfDiff <= expectedWeight - error):
+        elif(rfDiff <= expectedForce - error):
             rospy.loginfo("With weight info: Less than expected weight. Haven't picked up object");
-        elif(rfDiff >= expectedWeight + error):
+        elif(rfDiff >= expectedForce + error):
             rospy.loginfo("With weight info: More than expected weight. Picked the wrong object or hit something");
 
 
@@ -54,7 +64,7 @@ def listener():
 
     rospy.loginfo("After grasp");
     graspStatus = 2;
-    rospy.sleep(10 );
+    rospy.sleep(10);
     msgAfterGrasp = rospy.wait_for_message("robotiq_force_torque_sensor", ft_sensor);
     rospy.loginfo("After grasp: %f",msgAfterGrasp.Rf);
 
