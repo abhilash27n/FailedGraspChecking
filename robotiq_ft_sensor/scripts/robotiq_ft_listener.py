@@ -43,10 +43,10 @@ def checkGrasp(msgBeforeGrasp, msgAfterGrasp, expectedWeight = 0):
             rospy.loginfo("With weight info: Grasp looks good");
             return 1;
         elif(rfDiff <= expectedForce - error):
-            rospy.loginfo("With weight info: Less than expected weight. Haven't picked up object");
+            rospy.loginfo("With weight info: Less than expected weight. Haven't picked up object or picked lighter object");
             return 0;
         elif(rfDiff >= expectedForce + error):
-            rospy.loginfo("With weight info: More than expected weight. Picked the wrong object or hit something");
+            rospy.loginfo("With weight info: More than expected weight. Picked the heavier object or hit something");
             return 0;
 
 
